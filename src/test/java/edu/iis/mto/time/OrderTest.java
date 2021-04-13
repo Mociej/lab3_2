@@ -30,12 +30,27 @@ class OrderTest {
     @Test
     public void TestOrderExpiredCatch() {
         when(testclock.getZone()).thenReturn(ZoneId.systemDefault());
-        when(testclock.instant()).
-                thenReturn(submitDate.plusSeconds(25*60*60));
+        when(testclock.instant()).thenReturn(submitDate).thenReturn(submitDate.plusSeconds(25*60*60));
+
         try {
             order.submit();
             order.confirm();
-        } catch (OrderExpiredException o){
+
+            fail("fail no exception");
+
+        } catch (OrderExpiredException ignored) {}
+    }
+    @Test
+    public void TestOrderExpiredNoCatch() {
+        when(testclock.getZone()).thenReturn(ZoneId.systemDefault());
+        when(testclock.instant()).thenReturn(submitDate).thenReturn(submitDate.plusSeconds(24*60*60));
+
+        try {
+            order.submit();
+            order.confirm();
+
+        } catch (OrderExpiredException ignored) {
+            fail("fail exception");
         }
     }
 }
