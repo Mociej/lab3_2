@@ -53,4 +53,21 @@ class OrderTest {
             fail("fail exception");
         }
     }
+    @Test
+    public void TestOrderExpiredCatchState() {
+        when(testclock.getZone()).thenReturn(ZoneId.systemDefault());
+        when(testclock.instant()).thenReturn(submitDate).thenReturn(submitDate.plusSeconds(25*60*60));
+
+        try {
+            order.submit();
+            order.confirm();
+
+            //fail("fail no exception");
+
+        } catch (OrderExpiredException ignored) {}
+
+        Order.State orderState= order.getOrderState();
+        assertEquals(orderState, Order.State.CANCELLED);
+
+    }
 }
