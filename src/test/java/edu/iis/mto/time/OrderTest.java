@@ -70,4 +70,19 @@ class OrderTest {
         assertEquals(orderState, Order.State.CANCELLED);
 
     }
+    @Test
+    public void TestOrderExpiredNoCatchState() {
+        when(testclock.getZone()).thenReturn(ZoneId.systemDefault());
+        when(testclock.instant()).thenReturn(submitDate).thenReturn(submitDate.plusSeconds(24*60*60));
+
+        try {
+            order.submit();
+            order.confirm();
+
+        } catch (OrderExpiredException ignored) {
+            fail("fail exception");
+        }
+        Order.State orderState= order.getOrderState();
+        assertEquals(orderState, Order.State.CONFIRMED);
+    }
 }
